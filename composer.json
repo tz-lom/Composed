@@ -1,5 +1,5 @@
 {
-    "name": "Composed/Composed",
+    "name": "composed/composed",
     "description": "",
     "license": "MIT",
     "authors": [
@@ -14,8 +14,8 @@
         }
     },
     "scripts": {
-        "post-update-cmd": "Composed\\CacheManager::instance()->ensureCache()",
-        "post-install-cmd": "Composed\\CacheManager::instance()->ensureCache()"
+        "post-update-cmd": "Composed\\ComposerScript::rebuildCache",
+        "post-install-cmd": "Composed\\ComposerScript::rebuildCache"
     },
     "bin": []
 }

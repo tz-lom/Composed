@@ -1,6 +1,6 @@
 <?php
 
-namespace tzlom\Composed;
+namespace Composed;
 
 class CacheManager
 {
@@ -32,7 +32,7 @@ class CacheManager
         return self::$instance;
     }
 
-    public function ensureCache()
+    private function ensureCache()
     {
         $checksum = hash_file('sha256', $this->basepath.'/composer.lock');
 
