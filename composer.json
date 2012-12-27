@@ -1,0 +1,21 @@
+{
+    "name": "Composed/Composed",
+    "description": "",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Nuzhdin Urii",
+            "email": "nuzhdin.urii@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-0": {
+            "Site": "src/"
+        }
+    },
+    "scripts": {
+        "post-update-cmd": "Composed\\CacheManager::instance()->ensureCache()",
+        "post-install-cmd": "Composed\\CacheManager::instance()->ensureCache()"
+    },
+    "bin": []
+}
