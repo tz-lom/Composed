@@ -1,0 +1,29 @@
+#!/usr/bin/env php
+<?php
+
+require_once __DIR__.'/../../autoload.php';
+
+$forceRebuild = false;
+
+if($argc>0)
+{
+    if($argv[1]=='-h' || $argv[1]=='--help')
+    {
+        echo "Usage: {$argv[0]} [force] [--help] [-h]\n";
+        exit();
+    }
+    if($argv[1]=='force')
+    {
+        $forceRebuild = true;
+    }
+}
+
+$cm = Composed\CacheManager::instance();
+if($forceRebuild)
+{
+    $cm->rebuildCache();
+}
+else
+{
+    $cm->getData();
+}

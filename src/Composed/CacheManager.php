@@ -70,4 +70,10 @@ class CacheManager
         $this->data = $data;
         return true;
     }
+
+    public function getData()
+    {
+        $this->ensureCache();
+        return $this->data;
+    }
 }

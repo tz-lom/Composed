@@ -13,9 +13,5 @@
             "Site": "src/"
         }
     },
-    "scripts": {
-        "post-update-cmd": "Composed\\ComposerScript::rebuildCache",
-        "post-install-cmd": "Composed\\ComposerScript::rebuildCache"
-    },
-    "bin": []
+    "bin": [ "bin/updateComposedCache" ]
 }
