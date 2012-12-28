@@ -15,7 +15,7 @@ class CacheManager
 
     private function __construct()
     {
-        $this->basepath = dirname(dirname(dirname(__DIR__)));
+        $this->basepath = dirname(dirname(dirname(dirname(dirname(__DIR__)))));
         $this->cacheDir = __DIR__.'/cache/';
     }
 
@@ -56,7 +56,7 @@ class CacheManager
     {
         if($this->denyRebuild) throw new \ErrorException('Classes structure updated but cache not regenerated, you need to do this manually');
 
-        exec(sprintf('php %s %ы',
+        exec(sprintf('php %s %s %s',
             escapeshellarg(__DIR__.'/ExtractComposedClasses.phps'),
             escapeshellarg($this->basepath),
             escapeshellarg($this->cacheDir)

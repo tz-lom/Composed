@@ -9,10 +9,10 @@ if($argc>1)
 {
     if($argv[1]=='-h' || $argv[1]=='--help')
     {
-        echo "Usage: {$argv[0]} [force] [--help] [-h]\n";
+        echo "Usage: {$argv[0]} [--force] [--help] [-h]\n";
         exit();
     }
-    if($argv[1]=='force')
+    if($argv[1]=='--force')
     {
         $forceRebuild = true;
     }
