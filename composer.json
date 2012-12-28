@@ -10,7 +10,7 @@
     ],
     "autoload": {
         "psr-0": {
-            "Site": "src/"
+            "Composed": "src/"
         }
     },
     "bin": [ "bin/updateComposedCache" ]
