@@ -54,10 +54,10 @@ class CacheManager
     {
         if($this->hashComposerState() == $this->hash ) return;
 
-        if($this->loadCache() && $this->hash==$this->collectedHash) return;
+        if($this->loadCache() && $this->hash==$this->hashComposerState()) return;
 
         $this->rebuildCache();
-        if($this->loadCache() && $this->hash==$this->collectedHash) return;
+        if($this->loadCache() && $this->hash==$this->hashComposerState()) return;
 
         throw new \ErrorException("Cannot load cache");
     }
