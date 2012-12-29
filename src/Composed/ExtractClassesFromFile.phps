@@ -40,6 +40,7 @@ foreach($definedClasses as $className)
 
     $fullDefinedClasses[$className] = array(
         'name'          => $class->getName(),
+        'shortname'     => $class->getShortName(),
         'namespace'     => $class->getNamespaceName(),
         'extends'       => $extends,
         'implements'    => $implements,
@@ -54,6 +55,7 @@ foreach($definedInterfaces as $interfaceName)
 
     $fullDefinedInterfaces[$interfaceName] = array(
         'name'          => $interface->getName(),
+        'shortname'     => $interface->getShortName(),
         'namespace'     => $interface->getNamespaceName(),
         'implements'    => $interface->getInterfaceNames(),
         'traits'        => $interface->getTraitNames()
@@ -66,6 +68,7 @@ foreach($definedTraits as $traitName)
     $trait = new \ReflectionClass($traitName);
     $fullDefinedTraits[$traitName] = array(
         'name'      => $trait->getName(),
+        'shortname' => $trait->getShortName(),
         'namespace' => $trait->getNamespaceName(),
         'traits'    => $trait->getTraitNames()
     );
