@@ -1,3 +1,4 @@
-src/Composed/cache/
+src/Composed/cache
 composer.phar
+vendor
 .idea

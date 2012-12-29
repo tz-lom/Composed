@@ -2,14 +2,14 @@
 
 function help($execName)
 {
-    echo 'Usage: ',$execName,' basePath cacheDir ','\n';
+    echo 'Usage: ',$execName,' basePath cacheFile ','\n';
     exit(1);
 }
 
 if($argc!=3) help($argv[0]);
 
 $basepath = $argv[1];
-$cacheDir = $argv[2];
+$cacheFile = $argv[2];
 $autoload = $basepath.'/vendor/autoload.php';
 
 /**
@@ -40,32 +40,19 @@ function extractClassesFromFile($file, $autoload)
 }
 
 
-$data = array('hash' => hash_file('sha256', $basepath.'/composer.lock'));
+$data = array();
 
-function mergeExtractedInfo($extracted, $data)
-{
-    foreach($extracted as $key=>$list)
-    {
-        foreach($list as $item=>$info)
-        {
-            if(isset($data[$key][$item])) continue;
-            $data[$key][$item] = $info;
-        }
-    }
-    return $data;
-}
 
 foreach($loader->getClassMap() as $class=>$file)
 {
-    $data = mergeExtractedInfo(extractClassesFromFile($file, $autoload),$data);
+    $data = array_replace_recursive(extractClassesFromFile($file, $autoload),$data);
 }
 
 foreach($loader->getPrefixes() as $prefix=>$dirs)
 {
     foreach($dirs as $dir)
     {
-        $files = new RecursiveIteratorIterator(
-                new RecursiveDirectoryIterator($dir));
+        $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir));
 
         /**
          * @var SplFileInfo $fileInfo
@@ -74,11 +61,35 @@ foreach($loader->getPrefixes() as $prefix=>$dirs)
         {
             if($fileInfo->getExtension()=='php')
             {
-                echo $fileInfo->getPathname(),"\n";
-                $data = mergeExtractedInfo(extractClassesFromFile($fileInfo->getPathname(), $autoload),$data);
+                $data = array_replace_recursive(extractClassesFromFile($fileInfo->getPathname(), $autoload),$data);
             }
         }
     }
 }
 
-file_put_contents($cacheDir.'classes',serialize($data));
+// normalize indexes
+
+foreach($data as $key=>$values)
+{
+    $data[$key] = array_values($values);
+}
+
+// regenerate caches
+
+use Composed\ClassesInfo;
+use Composed\CacheManager;
+
+$classesInfo = new ClassesInfo($data);
+$filters = array();
+
+foreach($classesInfo->classesDerivedFrom('Composed\\DataFilter') as $className)
+{
+    $r = new \ReflectionClass($className);
+    $filter = $r->newInstanceWithoutConstructor();
+
+    $filter->prepareData($classesInfo);
+
+    $filters[$className] = $filter->getData();
+}
+
+\Composed\CacheManager::instance()->saveToCache($classesInfo, $filters);

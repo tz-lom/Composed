@@ -5,18 +5,25 @@ namespace Composed;
 class CacheManager
 {
     protected $basepath;
-    protected $cacheDir;
+    protected $cacheFile;
     /**
      * @var CacheManager
      */
     protected static $instance = NULL;
-    protected $data = NULL;
     protected $denyRebuild = false;
+
+    /**
+     * @var ClassesInfo
+     */
+    protected $classesCache = NULL;
+    protected $filteredCache = array();
+    protected $hash = '';
+    protected $collectedHash = '';
 
     private function __construct()
     {
         $this->basepath = dirname(dirname(dirname(dirname(dirname(__DIR__)))));
-        $this->cacheDir = __DIR__.'/cache/';
+        $this->cacheFile = __DIR__.'/cache';
     }
 
     private function __clone()
@@ -32,23 +39,26 @@ class CacheManager
         return self::$instance;
     }
 
-    private function ensureCache()
+    private function hashComposerState()
     {
-        $checksum = hash_file('sha256', $this->basepath.'/composer.lock');
-
-        if($this->loadCache())
+        if(!$this->collectedHash)
         {
-            if($this->data['hash'] != $checksum)
-            {
-                $this->rebuildCache();
-                if($this->loadCache()) return;
-            }
-            else
-            {
-                return;
-            }
-
+            $file = $this->basepath.'/composer.lock';
+            if(!file_exists($file)) throw new \ErrorException('Cannot find composer.lock file');
+            $this->collectedHash = @hash_file('sha256', $file);
         }
+        return $this->collectedHash;
+    }
+
+    public function ensureCache()
+    {
+        if($this->hashComposerState() == $this->hash ) return;
+
+        if($this->loadCache() && $this->hash==$this->collectedHash) return;
+
+        $this->rebuildCache();
+        if($this->loadCache() && $this->hash==$this->collectedHash) return;
+
         throw new \ErrorException("Cannot load cache");
     }
 
@@ -57,23 +67,47 @@ class CacheManager
         if($this->denyRebuild) throw new \ErrorException('Classes structure updated but cache not regenerated, you need to do this manually');
 
         exec(sprintf('php %s %s %s',
-            escapeshellarg(__DIR__.'/ExtractComposedClasses.phps'),
+            escapeshellarg(__DIR__.'/RebuildComposedCache.phps'),
             escapeshellarg($this->basepath),
-            escapeshellarg($this->cacheDir)
+            escapeshellarg($this->cacheFile)
         ));
+
+        $this->collectedHash = '';
+        $this->hash = '';
+        $this->classesCache = NULL;
+        $this->filteredCache = array();
     }
 
     protected function loadCache()
     {
-        $data = @unserialize(file_get_contents($this->cacheDir.'classes'));
+        $data = @unserialize(file_get_contents($this->cacheFile));
         if($data == false) return false;
-        $this->data = $data;
+
+        $this->hash = $data['hash'];
+        $this->classesCache = $data['classes'];
+        $this->filteredCache = $data['filters'];
+
         return true;
     }
 
-    public function getData()
+    public function saveToCache(ClassesInfo $classes, $filtered)
+    {
+        $data = array(
+            'hash'      => $this->hashComposerState(),
+            'classes'   => $classes,
+            'filters'   => $filtered
+        );
+
+        if(file_put_contents($this->cacheFile, serialize($data))==false)
+        {
+            throw new \ErrorException("Cannot save data to cache file $this->cacheFile");
+        }
+    }
+
+    public function getCachedFilterData($name)
     {
         $this->ensureCache();
-        return $this->data;
+        if(!isset($this->filteredCache[$name])) throw new \ErrorException('Asked to retrieve nonexistent filter');
+        return $this->filteredCache[$name];
     }
 }

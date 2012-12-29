@@ -25,5 +25,5 @@ if($forceRebuild)
 }
 else
 {
-    $cm->getData();
+    $cm->ensureCache();
 }
