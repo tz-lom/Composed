@@ -1,6 +1,6 @@
 {
     "name": "composed/composed",
-    "description": "",
+    "description": "Allows to collect various info about different classes that are installed with Composer",
     "license": "MIT",
     "authors": [
         {
@@ -8,6 +8,12 @@
             "email": "nuzhdin.urii@gmail.com"
         }
     ],
+    "support": {
+        "source": "http://github.com/tz-lom/Composed"
+    },
+    "require": {
+        "php": ">=5.4.0"
+    },
     "autoload": {
         "psr-0": {
             "Composed": "src/"
